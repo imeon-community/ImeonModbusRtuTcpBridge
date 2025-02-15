@@ -51,11 +51,11 @@ uint16_t maxReadTime = 0;
 
 uint32_t writeCount = 0;      // Tracks total write requests
 uint16_t writeError = 0;         // Tracks write errors
-uint16_t writeTime = 0;    // 
+uint16_t writeTime = 0;    //
 uint16_t maxWriteTime = 0;    // Max response time for write requests
 uint16_t roundRobinTime = 0;
 uint16_t maxRoundRobinTime = 0;    // Max time to process all set reads
-uint32_t startRoundRobinTime = 0;      // 
+uint32_t startRoundRobinTime = 0;      //
 uint16_t statusWifi = 0;
 uint16_t rebootCounter = 0;
 
@@ -90,7 +90,7 @@ Modbus::ResultCode onModbusRequest(uint8_t* data, uint8_t length, void* custom) 
   auto src = (Modbus::frame_arg_t*) custom;
   uint16_t transactionId = src->transactionId;
   uint16_t address = (data[1] << 8) | data[2];
-      
+
   tcpTime = millis();
 
   switch (functionCode) {
@@ -98,12 +98,12 @@ Modbus::ResultCode onModbusRequest(uint8_t* data, uint8_t length, void* custom) 
       LOG_DEBUG("TCPread: 0x%02X, Address: 0x%02X %d, passthrough\n", functionCode, address, address);
       return Modbus::EX_PASSTHROUGH;
 
-    case 0x06: { 
-      // Validate data length 
+    case 0x06: {
+      // Validate data length
       uint16_t singleRegValue = (data[3] << 8) | data[4];
       enqueueWriteCommand(address, 1, &singleRegValue);
-      LOG_DEBUG("TCPwrite: 0x%02X, Addr=%d 0x%02X, Value=%d\n", 
-                    functionCode, address, address, singleRegValue); 
+      LOG_DEBUG("TCPwrite: 0x%02X, Addr=%d 0x%02X, Value=%d\n",
+                    functionCode, address, address, singleRegValue);
       break;
     }
 
@@ -111,7 +111,7 @@ Modbus::ResultCode onModbusRequest(uint8_t* data, uint8_t length, void* custom) 
       // Validate data length
       uint16_t regs = (data[3] << 8) | data[4];
       uint8_t byteCount = data[5];
-      
+
       uint16_t registerValues[regs];
       for (int i = 0; i < regs; i++) {
         registerValues[i] = (data[6 + i*2] << 8) | data[6 + i*2 + 1];
@@ -122,11 +122,11 @@ Modbus::ResultCode onModbusRequest(uint8_t* data, uint8_t length, void* custom) 
       break;
     }
 
-    default: 
+    default:
       Serial.printf("TCP illegal function received: %02X\n", functionCode);
       LOG_ERROR("TCP illegal function received: %02X\n", functionCode);
       return Modbus::EX_ILLEGAL_FUNCTION;
-  }  
+  }
 
   // Construct affirmative response PDU
   uint8_t response[5]; // Function Code + Starting Address (2) + Quantity of Registers (2)
@@ -157,7 +157,7 @@ void blinkLED(int led) {
     digitalWrite(led, LOW);
 }
 
-// callback to send info about battery to modbusTCP server 
+// callback to send info about battery to modbusTCP server
 // I use it to send to esp32 controller which reads smartmeter readinngs
 // and answers requests from heatpump
 uint16_t cbBat(TRegister* reg, uint16_t val) {
@@ -324,7 +324,7 @@ void modbusRTU(void* parameter) {
 
         // Multiple registers write (Function Code 0x10), my testing shows that single register write 0x06 does not work
         result = mbImeon.writeMultipleRegisters(command.address, command.length);
-        
+
         // Check the result
         if (result == 0) {
           writeCount++;
@@ -332,9 +332,9 @@ void modbusRTU(void* parameter) {
           if (maxWriteTime < writeTime) {
             maxWriteTime = writeTime;
           }
-          Serial.printf("  SUCCESS: Written %d register(s) starting at 0x%04X %d, time: %d\n", 
+          Serial.printf("  SUCCESS: Written %d register(s) starting at 0x%04X %d, time: %d\n",
             command.length, command.address, command.address, writeTime);
-          LOG_INFO("  SUCCESS: Written %d register(s) starting at 0x%04X %d, time: %d\n", 
+          LOG_INFO("  SUCCESS: Written %d register(s) starting at 0x%04X %d, time: %d\n",
             command.length, command.address, command.address, writeTime);
         } else {
           Serial.printf("  ERROR: Write failed with code 0x%02X, requeueing\n", result);
@@ -344,7 +344,7 @@ void modbusRTU(void* parameter) {
           enqueueWriteCommand(command.address, command.length, command.values); // Use enqueueWriteCommand here
         }
 
-      // if there is nothing in write_queue, proceed with next read  
+      // if there is nothing in write_queue, proceed with next read
       } else {
         // select next range of registers to read
         RegisterRange currentRange = predefinedRanges[currentRangeIndex];
@@ -361,7 +361,7 @@ void modbusRTU(void* parameter) {
         uint16_t length = currentRange.length;
         //Serial.printf("Read range %d length: %d", reg, length);
         result = mbImeon.readHoldingRegisters(reg, length);
-        
+
         if (result == 0) {
           readCount++;
           readTime = millis() - transactionStartTime;
@@ -426,7 +426,7 @@ void setup() {
 
   pinMode(LED_ERR, OUTPUT);
   pinMode(LED_TRANS, OUTPUT);
-  
+
   // Initialize Modbus
   mbTcp.onConnect(cbConn);
   mbTcp.onRequest(cbPreRequest);
@@ -434,7 +434,7 @@ void setup() {
   mbTcp.onRaw(onModbusRequest);           // capture all modbusTCP requests and process in callback
   mbTcp.server(); // Set ESP32 as Modbus TCP server
   mbBat.client();
-  
+
   Serial2.begin(BAUD_RATE, SERIAL_8N1, PIN_RX, PIN_TX); // RX = 16, TX = 17
   mbImeon.begin(MODBUS_RTU_ID, Serial2);
 
@@ -443,7 +443,7 @@ void setup() {
     uint16_t start = predefinedRanges[i].start;
     uint16_t length = predefinedRanges[i].length;
     for (uint16_t reg = start; reg < start + length; ++reg) {
-      mbTcp.addHreg(reg, 0); // add each register 
+      mbTcp.addHreg(reg, 0); // add each register
     }
   }
 
@@ -452,7 +452,7 @@ void setup() {
   }
   mbTcp.onSetHreg(771, cbBat);      // when battery last relevant registry is written, callback will  send it to remote device
 
-  
+
   // Initialize the command queue
   commandQueue = xQueueCreate(WRITE_QUEUE_LENGTH, sizeof(WriteCommand));
   if (commandQueue == NULL) {

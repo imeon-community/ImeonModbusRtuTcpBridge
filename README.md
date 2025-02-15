@@ -81,7 +81,7 @@ For this before sketch is uploaded, in Arduino Tools I set "Arduino runs on Core
 ## Installation
 
 secrets.h file is under .gitignore
-So rename secrets1.h to secrets.h and set the right settings
+So rename secrets.sample to secrets.h and set the right settings
 
 In Arduino Tools I set "Arduino runs on Core0" and 'Events run on Core0"
 
