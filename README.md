@@ -16,9 +16,10 @@ This project implements an ESP32-based Modbus gateway that facilitates
 communication between a Modbus TCP network and a Modbus RTU device
 (specifically an IMEON solar inverter). IMEON inverter has a RTU timeout
 of 10sec, so I find it not optimal to implement synchronuous RTU-TCP bridge
-(as in this case your TCP requests would experiencethe same 10sec timeouts).
+(as in this case your TCP requests would experience the same 10sec timeouts).
 
 ## Logic
+
 - esp32 rotates predefined list of registers/length reads them from IMEON RTU and
   stores in esp32 local registers. When delay between requests is set to 1 sec,
   my round of reads is completed in ~16secs.
@@ -27,7 +28,7 @@ of 10sec, so I find it not optimal to implement synchronuous RTU-TCP bridge
   (local registers are updated by read routine).
 - TCP write requests receive immediate response SUCCESS, and are stored in
   the write queue
-- esp32 processes the write queue as priority - - reading stops until write queue is empty
+- esp32 processes the write queue as priority - reading stops until write queue is empty
 - if write requests fails, write request is written in the write queue again (tbd)
 
 
@@ -81,7 +82,7 @@ For this before sketch is uploaded, in Arduino Tools I set "Arduino runs on Core
 ## Installation
 
 secrets.h file is under .gitignore
-So rename secrets.sample to secrets.h and set the right settings
+So copy secrets.h.sample to secrets.h and set the right settings
 
 In Arduino Tools I set "Arduino runs on Core0" and 'Events run on Core0"
 

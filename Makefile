@@ -1,4 +1,4 @@
-PORT?=/dev/ttyUSB0
+PORT?=/dev/ttyACM0
 SKETCH?=imeon_bridge_104_rw.ino
 
 prepare:

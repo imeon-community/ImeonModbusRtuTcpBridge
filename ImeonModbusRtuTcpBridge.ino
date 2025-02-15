@@ -197,13 +197,13 @@ uint16_t cbBat(TRegister* reg, uint16_t val) {
 }
 
 Modbus::ResultCode cbPreRequest(Modbus::FunctionCode fc, const Modbus::RequestData data) {
-  //LOG_DEBUG("PRE Function: %02X\n", fc);
+  // LOG_DEBUG("PRE Function: %02X\n", fc);
   return Modbus::EX_SUCCESS;
 }
 
 Modbus::ResultCode cbPostRequest(Modbus::FunctionCode fc, const Modbus::RequestData data) {
   uint16_t t = millis() - tcpTime;
-  //LOG_DEBUG("TCP fc: %d, time: %d\n", fc, t);
+  // LOG_DEBUG("TCP fc: %d, time: %d\n", fc, t);
   return Modbus::EX_SUCCESS;
 }
 
@@ -219,7 +219,7 @@ uint16_t cbRebootCounter(TRegister* reg, uint16_t val) {
   if (val == 0) {
     rebootCounter = 0;
     EEPROM.writeUInt(EEPROM_REBOOT_COUNTER_ADDRESS, rebootCounter); // Write the updated counter back to EEPROM
-    EEPROM.commit();  // Commit the changes to EEPROM (save them!)
+    EEPROM.commit(); // Commit the changes to EEPROM (save them!)
   } else {
     val = rebootCounter; // if mbTcp sets value non zero, ignore it
   }
@@ -359,7 +359,7 @@ void modbusRTU(void* parameter) {
         }
         uint16_t reg = currentRange.start;
         uint16_t length = currentRange.length;
-        //Serial.printf("Read range %d length: %d", reg, length);
+        // Serial.printf("Read range %d length: %d", reg, length);
         result = mbImeon.readHoldingRegisters(reg, length);
 
         if (result == 0) {
@@ -373,7 +373,7 @@ void modbusRTU(void* parameter) {
           // Iterate through the response and print register values
           for (uint16_t i = 0; i < length; i++) {
             uint16_t value = mbImeon.getResponseBuffer(i);
-            //LOG_DEBUG(" %d : %d ", reg + i, value);
+            // LOG_DEBUG(" %d : %d ", reg + i, value);
             mbTcp.Hreg(reg + i, value);
           }
         } else {
@@ -403,7 +403,7 @@ void setup() {
   Serial.printf("Reboot counter stored in eeprom: %d\n", rebootCounter);
   rebootCounter++; // Increment the counter
   EEPROM.writeUInt(EEPROM_REBOOT_COUNTER_ADDRESS, rebootCounter); // Write the updated counter back to EEPROM
-  EEPROM.commit();  // Commit the changes to EEPROM (save them!)
+  EEPROM.commit(); // Commit the changes to EEPROM (save them!)
 
   // Initialize WiFi
   Serial.println("Connecting to Wi-Fi...");
@@ -431,12 +431,12 @@ void setup() {
   mbTcp.onConnect(cbConn);
   mbTcp.onRequest(cbPreRequest);
   mbTcp.onRequestSuccess(cbPostRequest);
-  mbTcp.onRaw(onModbusRequest);           // capture all modbusTCP requests and process in callback
+  mbTcp.onRaw(onModbusRequest); // capture all modbusTCP requests and process in callback
   mbTcp.server(); // Set ESP32 as Modbus TCP server
   mbBat.client();
 
-  Serial2.begin(BAUD_RATE, SERIAL_8N1, PIN_RX, PIN_TX); // RX = 16, TX = 17
-  mbImeon.begin(MODBUS_RTU_ID, Serial2);
+  Serial1.begin(BAUD_RATE, SERIAL_8N1, PIN_RX, PIN_TX); // RX = 16, TX = 17
+  mbImeon.begin(MODBUS_RTU_ID, Serial1);
 
   // Iterate through each range and print all individual registers
   for (int i = 0; i < rangeCount; ++i) {
